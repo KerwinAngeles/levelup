@@ -1,4 +1,6 @@
 const User = require('../Models/User');
+const path = require('path');
+const fs = require('fs');
 
 exports.getProfile = async (req, res) => {
     try {
@@ -37,6 +39,12 @@ exports.editProfile = async(req, res) => {
         if (lastname) updateData.lastname = lastname;
 
         if (req.file) {
+            if(user.profileImage){
+                const oldImagePath = path.join(__dirname, '..', 'uploads', user.profileImage);
+                if (fs.existsSync(oldImagePath)) {
+                    fs.unlinkSync(oldImagePath);
+                }
+            }
             updateData.profileImage = req.file.filename;
         }
 
