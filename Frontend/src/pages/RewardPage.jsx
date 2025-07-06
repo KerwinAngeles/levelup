@@ -73,12 +73,10 @@ const RewardPage = () => {
       const response = await api.get('/api/awards/all', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      
-      // Asegurarse de que estamos usando la estructura correcta
       const awards = response.data.awards || response.data || [];
       setUserAwards(awards);
       
-      // Si hay premios recién desbloqueados, mostrar notificación
+
       if (response.data.newlyUnlocked && response.data.newlyUnlocked.length > 0) {
         console.log('Nuevos premios desbloqueados:', response.data.newlyUnlocked);
       }

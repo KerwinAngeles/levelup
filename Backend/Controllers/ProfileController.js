@@ -64,7 +64,6 @@ exports.editProfile = async(req, res) => {
             user: updatedUser
         });
     } catch (e) {
-        console.error('Error al actualizar el perfil:', e);
         res.status(500).json({ msg: 'Error al actualizar el perfil', error: error.message });
     }
 }

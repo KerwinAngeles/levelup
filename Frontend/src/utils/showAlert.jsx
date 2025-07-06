@@ -1,10 +1,10 @@
 import Swal from "sweetalert2";
 export const showAlert = (xpNotification) => {
-    const hasBonus = xpNotification.bonus > 0;
-    const hasNewAwards = xpNotification.awards.length > 0;
-    let awardsHtml = '';
-    if (hasNewAwards) {
-        awardsHtml = `
+  const hasBonus = xpNotification.bonus > 0;
+  const hasNewAwards = xpNotification.awards.length > 0;
+  let awardsHtml = '';
+  if (hasNewAwards) {
+    awardsHtml = `
               <div class="mt-4 p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
                 <div class="text-2xl mb-2">🏆</div>
                 <div class="font-bold text-white mb-1">¡Nuevos premios desbloqueados!</div>
@@ -13,11 +13,11 @@ export const showAlert = (xpNotification) => {
                 </div>
               </div>
             `;
-    }
+  }
 
-    Swal.fire({
-        title: '¡Misión completada!',
-        html: `
+  Swal.fire({
+    title: '¡Misión completada!',
+    html: `
               <div class="text-center">
                 <div class="text-4xl mb-4">🎉</div>
                 <p class="mb-2">¡Felicidades! Has completado tu misión.</p>
@@ -41,15 +41,15 @@ export const showAlert = (xpNotification) => {
                 ${awardsHtml}
               </div>
             `,
-        icon: 'success',
-        timer: hasNewAwards ? 6000 : 4000,
-        showConfirmButton: false,
-        background: '#1f2937',
-        color: '#ffffff',
-        customClass: {
-            popup: 'bg-gray-800 border border-gray-700',
-            title: 'text-white',
-            htmlContainer: 'text-gray-300'
-        }
-    });
+    icon: 'success',
+    timer: hasNewAwards ? 6000 : 4000,
+    showConfirmButton: false,
+    background: '#1f2937',
+    color: '#ffffff',
+    customClass: {
+      popup: 'bg-gray-800 border border-gray-700',
+      title: 'text-white',
+      htmlContainer: 'text-gray-300'
+    }
+  });
 }

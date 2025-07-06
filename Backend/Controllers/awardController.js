@@ -141,7 +141,6 @@ const checkAndUnlockAwards = async (userId) => {
 
         return { newlyUnlocked, totalCompleted };
     } catch (error) {
-        console.error('Error checking and unlocking awards:', error);
         throw error;
     }
 };
@@ -158,8 +157,6 @@ exports.getAllAwards = async (req, res) => {
             where: { userId },
             order: [['createdAt', 'ASC']]
         });
-
-        console.log(`Fetched awards for user ${userId}: ${awards.length} awards, ${totalCompleted} missions completed`);
         
         res.json({
             awards,
@@ -167,7 +164,6 @@ exports.getAllAwards = async (req, res) => {
             newlyUnlocked
         });
     } catch (error) {
-        console.error('Error fetching awards:', error);
         res.status(500).json({ msg: 'Error fetching awards', error: error.message });
     }
 };
@@ -185,7 +181,6 @@ exports.getAllAwardsCount = async (req, res) => {
             totalCount: awards.count,
         });
     } catch (error) {
-        console.error('Error fetching awards:', error);
         res.status(500).json({ msg: 'Error fetching awards', error: error.message });
     }
 };
@@ -197,7 +192,6 @@ exports.initializeAwards = async (req, res) => {
         await initializeUserAwards(userId);
         res.json({ msg: 'Awards initialized successfully' });
     } catch (error) {
-        console.error('Error initializing awards:', error);
         res.status(500).json({ msg: 'Error initializing awards', error: error.message });
     }
 };
@@ -212,7 +206,6 @@ exports.checkAwards = async (req, res) => {
             message: newlyUnlocked.length > 0 ? `¡Desbloqueaste ${newlyUnlocked.length} premio(s)!` : 'No hay nuevos premios desbloqueados'
         });
     } catch (error) {
-        console.error('Error checking awards:', error);
         res.status(500).json({ msg: 'Error checking awards', error: error.message });
     }
 };

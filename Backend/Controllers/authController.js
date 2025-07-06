@@ -49,7 +49,6 @@ exports.register = async(req, res) => {
         });
         res.status(201).json({msg: 'User created successfully'});
     }catch(e){
-        console.error('Registration error:', e);
         res.status(500).json({error: e.message});
     }
 };

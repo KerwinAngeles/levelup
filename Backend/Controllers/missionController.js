@@ -49,7 +49,6 @@ const calculateBonusXP = async (userId, statTarget) => {
             bonusXP: Math.floor(calculateMissionXP(statTarget) * (bonusPercentage / 100))
         };
     } catch (error) {
-        console.error('Error calculating bonus XP:', error);
         return { consecutiveDays: 0, bonusPercentage: 0, bonusXP: 0 };
     }
 };
@@ -88,7 +87,6 @@ const updateUserXP = async (userId, xpToAdd) => {
             newRankName
         };
     } catch (error) {
-        console.error('Error updating user XP:', error);
         throw error;
     }
 };
@@ -188,7 +186,6 @@ const checkAndUnlockAwards = async (userId) => {
 
         return { newlyUnlocked, totalCompleted };
     } catch (error) {
-        console.error('Error checking and unlocking awards:', error);
         throw error;
     }
 };
@@ -221,8 +218,6 @@ exports.updateMission = async (req, res) => {
     const userId = req.user.id;
     const { status } = req.body;
 
-    console.log('Updating mission:', { id, userId, status, body: req.body }); // Debug log
-
     try {
         const mission = await Mission.findOne({ where: { id, userId } });
         if (!mission) return res.status(404).json({ msg: 'Mission not found' });
@@ -241,11 +236,6 @@ exports.updateMission = async (req, res) => {
             // Check and unlock awards
             const { newlyUnlocked, totalCompleted } = await checkAndUnlockAwards(userId);
 
-            console.log(`Mission completed! User ${userId} gained ${baseXP} base XP + ${bonus.bonusXP} bonus XP = ${totalXP} total XP. New total: ${newXP}, New level: ${newLevel}`);
-            if (newlyUnlocked.length > 0) {
-                console.log(`New awards unlocked: ${newlyUnlocked.join(', ')}`);
-            }
-
             res.json({
                 msg: 'Mission updated and XP awarded',
                 mission,
@@ -263,7 +253,6 @@ exports.updateMission = async (req, res) => {
             res.json({ msg: 'Mission updated', mission });
         }
     } catch (e) {
-        console.error('Error updating mission:', e);
         res.status(500).json({ msg: 'Failed to update mission', e: e.message });
     }
 }
@@ -286,10 +275,8 @@ exports.getAllMissions = async (req, res) => {
     const userId = req.user.id;
     try {
         const missions = await Mission.findAll({ where: { userId }, order: [['createdAt', 'DESC']] });
-        console.log('Fetched missions for user:', userId, missions.map(m => ({ id: m.id, title: m.title, statTarget: m.statTarget, status: m.status }))); // Debug log
         res.json(missions)
     } catch (e) {
-        console.error('Error fetching missions:', e); // Debug log
         res.status(500).json({ msg: 'Error fetching missions', e: e.message });
     }
 }
@@ -326,7 +313,6 @@ exports.getUserXPStats = async (req, res) => {
             xpByType
         });
     } catch (e) {
-        console.error('Error fetching user XP stats:', e);
         res.status(500).json({ msg: 'Error fetching user XP stats', e: e.message });
     }
 }
