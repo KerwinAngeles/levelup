@@ -1,11 +1,16 @@
 const User = require('../Models/User');
 const path = require('path');
 const fs = require('fs');
+const Rank = require('../Models/Rank');
 
 exports.getProfile = async (req, res) => {
     try {
         const user = await User.findByPk(req.user.id, {
-            attributes: ['id', 'username', 'email', 'firstname', 'lastname', 'level', 'xp', 'profileImage', 'createdAt']
+            attributes: ['id', 'username', 'email', 'firstname', 'lastname', 'level', 'xp', 'profileImage', 'createdAt'],
+            include: [{
+                model: Rank,
+                attributes: ['name']
+            }]
         });
         if (!user) return res.status(404).json({ msg: 'Usuario no encontrado' });
         res.json(user);
@@ -60,6 +65,6 @@ exports.editProfile = async(req, res) => {
         });
     } catch (e) {
         console.error('Error al actualizar el perfil:', e);
-        res.status(500).json({ error: e.message });
+        res.status(500).json({ msg: 'Error al actualizar el perfil', error: error.message });
     }
 }

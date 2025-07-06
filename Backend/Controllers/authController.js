@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { Op } = require('sequelize');
 const Award = require('../Models/Award');
+const Rank = require('../Models/Rank');
 
 // create account
 exports.register = async(req, res) => {
@@ -42,6 +43,10 @@ exports.register = async(req, res) => {
         }
 
         const newUser = await User.create(userData);
+        await Rank.create({
+            userId: newUser.id,
+            name: 'E'
+        });
         res.status(201).json({msg: 'User created successfully'});
     }catch(e){
         console.error('Registration error:', e);

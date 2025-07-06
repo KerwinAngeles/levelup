@@ -1,21 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { UserContext } from '../context/UserContext';
 import Nav from '../components/Nav'
-import { 
-  Heart, 
-  Zap, 
-  Battery, 
-  Sword, 
-  Shield, 
-  Eye, 
-  Brain, 
-  Sparkles, 
-  Trophy, 
-  Star, 
+import { showAlert } from '../utils/showAlert';
+import {getStatTargetIcon, getStatTargetColor, getStatTargetLabel} from '../utils/const';
+import {
   Crown,
   Users,
   Target,
-  Flame,
   TrendingUp,
   Activity,
   Timer,
@@ -27,7 +18,7 @@ import {
 import api from '../api';
 
 const HomePage = () => {
-  const {user} = useContext(UserContext);
+  const { user, fetchUser, xpNotification, setXpNotification } = useContext(UserContext);
   const [missionStats, setMissionStats] = useState({
     totalMissions: 0,
     completedMissions: 0,
@@ -46,6 +37,13 @@ const HomePage = () => {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (xpNotification) {
+      showAlert(xpNotification);
+      setXpNotification(null);
+    }
+  }, [xpNotification]);
+
   const fetchMissionStats = async () => {
     try {
       setLoading(true);
@@ -53,21 +51,8 @@ const HomePage = () => {
       const response = await api.get('api/missions/all', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
+
       const missions = response.data;
-      console.log('Raw missions data from API:', missions); // Debug log
-      
-      // Log each mission's statTarget field specifically
-      missions.forEach((mission, index) => {
-        console.log(`Mission ${index + 1}:`, {
-          id: mission.id,
-          title: mission.title,
-          statTarget: mission.statTarget,
-          statTargetType: typeof mission.statTarget,
-          status: mission.status
-        });
-      });
-      
       calculateStats(missions);
     } catch (error) {
       console.error('Error fetching mission stats:', error);
@@ -82,14 +67,13 @@ const HomePage = () => {
       const response = await api.get('/api/awards/all', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      
+
       const awards = response.data.awards || response.data || [];
-      console.log('Raw awards data from API:', awards); // Debug log
       const unlockedAwards = awards
         .filter(award => award.status === 'desbloqueado')
         .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
         .slice(0, 5);
-      
+
       setRecentAwards(unlockedAwards);
     } catch (error) {
       console.error('Error fetching recent awards:', error);
@@ -98,8 +82,6 @@ const HomePage = () => {
   };
 
   const calculateStats = (missions) => {
-    console.log('Missions received:', missions); // Debug log
-    
     const stats = {
       totalMissions: missions.length,
       completedMissions: missions.filter(m => m.status === 'completada').length,
@@ -111,13 +93,13 @@ const HomePage = () => {
 
     // Calculate stats by statTarget type
     const statTargets = ['Push_Ups', 'Sit_Ups', 'Pull_Ups', 'Plank', 'Squats', 'Running', 'Jogging'];
-    
+
     statTargets.forEach(target => {
       const missionsOfType = missions.filter(m => m.statTarget === target);
       console.log(`Missions for ${target}:`, missionsOfType); // Debug log
-      
+
       const completedOfType = missionsOfType.filter(m => m.status === 'completada');
-      
+
       stats.statsByType[target] = {
         total: missionsOfType.length,
         completed: completedOfType.length,
@@ -129,69 +111,6 @@ const HomePage = () => {
 
     console.log('Calculated stats:', stats); // Debug log
     setMissionStats(stats);
-  };
-
-  const getStatTargetIcon = (statTarget) => {
-    switch (statTarget) {
-      case 'Push_Ups':
-        return '💪';
-      case 'Sit_Ups':
-        return '🏃';
-      case 'Pull_Ups':
-        return '💪';
-      case 'Plank':
-        return '🧘';
-      case 'Squats':
-        return '🦵';
-      case 'Running':
-        return '🏃';
-      case 'Jogging':
-        return '🏃';
-      default:
-        return '🎯';
-    }
-  };
-
-  const getStatTargetColor = (statTarget) => {
-    switch (statTarget) {
-      case 'Push_Ups':
-        return { color: 'text-red-400', bgColor: 'bg-red-500/20', borderColor: 'border-red-500/30' };
-      case 'Sit_Ups':
-        return { color: 'text-blue-400', bgColor: 'bg-blue-500/20', borderColor: 'border-blue-500/30' };
-      case 'Pull_Ups':
-        return { color: 'text-green-400', bgColor: 'bg-green-500/20', borderColor: 'border-green-500/30' };
-      case 'Plank':
-        return { color: 'text-purple-400', bgColor: 'bg-purple-500/20', borderColor: 'border-purple-500/30' };
-      case 'Squats':
-        return { color: 'text-pink-400', bgColor: 'bg-pink-500/20', borderColor: 'border-pink-500/30' };
-      case 'Running':
-        return { color: 'text-yellow-400', bgColor: 'bg-yellow-500/20', borderColor: 'border-yellow-500/30' };
-      case 'Jogging':
-        return { color: 'text-cyan-400', bgColor: 'bg-cyan-500/20', borderColor: 'border-cyan-500/30' };
-      default:
-        return { color: 'text-gray-400', bgColor: 'bg-gray-500/20', borderColor: 'border-gray-500/30' };
-    }
-  };
-
-  const getStatTargetLabel = (statTarget) => {
-    switch (statTarget) {
-      case 'Push_Ups':
-        return 'PUSH-UPS';
-      case 'Sit_Ups':
-        return 'SIT-UPS';
-      case 'Pull_Ups':
-        return 'PULL-UPS';
-      case 'Plank':
-        return 'PLANK';
-      case 'Squats':
-        return 'SQUATS';
-      case 'Running':
-        return 'RUNNING';
-      case 'Jogging':
-        return 'JOGGING';
-      default:
-        return statTarget;
-    }
   };
 
   // Create stats array from mission data
@@ -240,13 +159,14 @@ const HomePage = () => {
                   <Crown className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400" />
                 </div>
                 {user && (
-                  <div className="text-white text-sm py-2">
-                     <span className="bg-purple-600 text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium"> {user.username}</span>
+                  <div className="flex text-white gap-3 text-sm py-2">
+                    <span className="bg-pink-500 text-white px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-medium">{user.username}</span>
+                    <span className="bg-pink-500 flex justify-center items-center gap-2 text-white px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-medium"><Medal /> Rank {user?.Rank?.name}</span>
                   </div>
                 )}
               </div>
             </div>
-            
+
           </div>
 
           {/* Main Stats */}
@@ -267,6 +187,7 @@ const HomePage = () => {
               </div>
               <div className="text-xs sm:text-sm text-gray-400">COMPLETADAS</div>
             </div>
+
             <div className="text-center">
               <div className="text-2xl sm:text-3xl font-bold text-purple-400">
                 {loading ? '...' : user.xp}
@@ -285,7 +206,7 @@ const HomePage = () => {
                 <Target className="w-4 h-4 sm:w-5 sm:h-5" />
                 ESTADÍSTICAS POR TIPO DE EJERCICIO
               </h2>
-              
+
               {loading ? (
                 <div className="flex items-center justify-center py-8">
                   <div className="flex flex-col items-center gap-4">
@@ -307,7 +228,7 @@ const HomePage = () => {
                           <div className="text-xs sm:text-sm text-green-400">{stat.xp} XP</div>
                         </div>
                       </div>
-                      
+
                       {/* Progress bars for each status */}
                       <div className="space-y-1">
                         <div className="flex items-center justify-between text-xs">
@@ -315,23 +236,23 @@ const HomePage = () => {
                           <span className="text-white">{stat.completed}</span>
                         </div>
                         <div className="w-full bg-slate-700 rounded-full h-1">
-                          <div 
-                            className="bg-green-500 h-1 rounded-full transition-all duration-300" 
-                            style={{width: `${(stat.completed / stat.value) * 100}%`}}
+                          <div
+                            className="bg-green-500 h-1 rounded-full transition-all duration-300"
+                            style={{ width: `${(stat.completed / stat.value) * 100}%` }}
                           ></div>
                         </div>
-                        
+
                         <div className="flex items-center justify-between text-xs">
                           <span className="text-yellow-300">Pendientes</span>
                           <span className="text-white">{stat.pending}</span>
                         </div>
                         <div className="w-full bg-slate-700 rounded-full h-1">
-                          <div 
-                            className="bg-yellow-500 h-1 rounded-full transition-all duration-300" 
-                            style={{width: `${(stat.pending / stat.value) * 100}%`}}
+                          <div
+                            className="bg-yellow-500 h-1 rounded-full transition-all duration-300"
+                            style={{ width: `${(stat.pending / stat.value) * 100}%` }}
                           ></div>
                         </div>
-                        
+
                         {stat.failed > 0 && (
                           <>
                             <div className="flex items-center justify-between text-xs">
@@ -339,9 +260,9 @@ const HomePage = () => {
                               <span className="text-white">{stat.failed}</span>
                             </div>
                             <div className="w-full bg-slate-700 rounded-full h-1">
-                              <div 
-                                className="bg-red-500 h-1 rounded-full transition-all duration-300" 
-                                style={{width: `${(stat.failed / stat.value) * 100}%`}}
+                              <div
+                                className="bg-red-500 h-1 rounded-full transition-all duration-300"
+                                style={{ width: `${(stat.failed / stat.value) * 100}%` }}
                               ></div>
                             </div>
                           </>
@@ -429,7 +350,7 @@ const HomePage = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-300">Tasa de éxito</span>
                     <span className="text-white font-bold">
-                      {missionStats.totalMissions > 0 
+                      {missionStats.totalMissions > 0
                         ? `${Math.round((missionStats.completedMissions / missionStats.totalMissions) * 100)}%`
                         : '0%'
                       }

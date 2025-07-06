@@ -6,6 +6,7 @@ const fs = require('fs');
 const User = require('./Models/User');
 const Mission = require('./Models/Mission');
 const Award = require('./Models/Award');
+const Rank = require('./Models/Rank');
 
 require('dotenv').config();
 
@@ -40,6 +41,9 @@ Mission.belongsTo(User, {foreignKey: 'userId'});
 
 User.hasMany(Award, {foreignKey: 'userId'});
 Award.belongsTo(User, {foreignKey: 'userId'});
+
+User.hasOne(Rank, {foreignKey: 'userId'});
+Rank.belongsTo(User, {foreignKey: 'userId'});
 
 
 // Start App

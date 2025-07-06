@@ -1,46 +1,25 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Target,
   Calendar,
   Zap,
-  Trophy,
   Edit3,
   Trash2,
   CheckCircle,
   XCircle,
   Clock,
-  TrendingUp,
   AlertCircle,
-  Star,
-  Award,
-  Flame,
-  Plus,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import api from '../api';
 import { UserContext } from '../context/UserContext';
+import { typeColors, typeEmojis, getStatusColor, getDaysRemaining, formatDate } from '../utils/const';
 
-const typeColors = {
-  Push_Ups: 'from-pink-500 to-red-500',
-  Sit_Ups: 'from-blue-500 to-cyan-500',
-  Pull_Ups: 'from-green-500 to-emerald-500',
-  Plank: 'from-purple-500 to-fuchsia-500',
-  Squats: 'from-yellow-500 to-orange-500',
-  Running: 'from-cyan-500 to-blue-500',
-  Jogging: 'from-emerald-500 to-lime-500',
-};
-const typeEmojis = {
-  Push_Ups: '💪',
-  Sit_Ups: '🧘',
-  Pull_Ups: '🏋️',
-  Plank: '🧘‍♂️',
-  Squats: '🦵',
-  Running: '🏃‍♂️',
-  Jogging: '🏃',
-};
 
 const MissionList = ({ onMissionUpdate, onMissionDelete, onEditMission }) => {
-  const { fetchUser } = useContext(UserContext);
+  const navigate = useNavigate();
+  const { user, fetchUser, setXpNotification } = useContext(UserContext);
   const [missions, setMissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -95,21 +74,45 @@ const MissionList = ({ onMissionUpdate, onMissionDelete, onEditMission }) => {
           { status: newStatus },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setMissions(prevMissions =>
-          prevMissions.map(mission =>
-            mission.id === missionId
-              ? { ...mission, status: newStatus }
-              : mission
-          )
-        );
+        const prevRank = user?.rank?.name;
+        const newRank = response.data.newUserRank;
+        const hasNewRank = prevRank !== newRank;
+        console.log(response)
+        if (response.status === 200) {
+          setMissions(prevMissions =>
+            prevMissions.map(mission =>
+              mission.id === missionId
+                ? { ...mission, status: newStatus }
+                : mission
+            )
+          );
+        }
+
         if (onMissionUpdate) onMissionUpdate();
         if (newStatus === 'completada') {
           await fetchUser();
         }
+
+        if (newStatus === 'completada' && response.data.xpGained) {
+          setXpNotification({
+            xp: response.data.xpGained,
+            base: response.data.baseXP,
+            bonus: response.data.bonusXP,
+            level: response.data.newUserLevel,
+            totalXP: response.data.newUserXP,
+            rank: newRank,
+            awards: response.data.newlyUnlockedAwards || [],
+            consecutiveDays: response.data.consecutiveDays,
+            hasNewRank
+          });
+          await fetchUser();
+          navigate('/home');
+        }
+
         if (newStatus === 'completada' && response.data.xpGained) {
           const hasBonus = response.data.bonusXP > 0;
           const hasNewAwards = response.data.newlyUnlockedAwards && response.data.newlyUnlockedAwards.length > 0;
-          
+
           let awardsHtml = '';
           if (hasNewAwards) {
             awardsHtml = `
@@ -122,39 +125,6 @@ const MissionList = ({ onMissionUpdate, onMissionDelete, onEditMission }) => {
               </div>
             `;
           }
-          
-          Swal.fire({
-            title: '¡Misión completada!',
-            html: `
-              <div class="text-center">
-                <div class="text-4xl mb-4">🎉</div>
-                <p class="mb-2">¡Felicidades! Has completado tu misión.</p>
-                <div class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-4 py-2 rounded-lg font-bold text-lg mb-2">
-                  +${response.data.xpGained} XP
-                </div>
-                ${hasBonus ? `
-                  <div class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded text-sm mb-2">
-                    +${response.data.baseXP} base + ${response.data.bonusXP} bonus
-                  </div>
-                  <div class="text-xs text-green-300 mb-2">
-                    ¡${response.data.consecutiveDays} días consecutivos! +${response.data.bonusXP} XP extra
-                  </div>
-                ` : ''}
-                <p class="text-sm">Nivel ${response.data.newUserLevel} • ${response.data.newUserXP} XP total</p>
-                ${awardsHtml}
-              </div>
-            `,
-            icon: 'success',
-            timer: hasNewAwards ? 6000 : 4000,
-            showConfirmButton: false,
-            background: '#1f2937',
-            color: '#ffffff',
-            customClass: {
-              popup: 'bg-gray-800 border border-gray-700',
-              title: 'text-white',
-              htmlContainer: 'text-gray-300'
-            }
-          });
         } else {
           Swal.fire({
             title: newStatus === 'completada' ? '¡Misión completada!' : 'Misión marcada como fallida',
@@ -254,18 +224,6 @@ const MissionList = ({ onMissionUpdate, onMissionDelete, onEditMission }) => {
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'completada':
-        return 'bg-gradient-to-r from-green-500 to-emerald-500 text-green-100 border-green-500/30';
-      case 'fallida':
-        return 'bg-gradient-to-r from-red-500 to-pink-500 text-red-100 border-red-500/30';
-      case 'pendiente':
-      default:
-        return 'bg-gradient-to-r from-yellow-500 to-orange-500 text-yellow-100 border-yellow-500/30';
-    }
-  };
-
   const getStatusIcon = (status) => {
     switch (status) {
       case 'completada':
@@ -277,33 +235,7 @@ const MissionList = ({ onMissionUpdate, onMissionDelete, onEditMission }) => {
         return <Clock className="h-4 w-4" />;
     }
   };
-
   const getStatTargetIcon = (statTarget) => typeEmojis[statTarget] || '🎯';
-
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Sin fecha límite';
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = date - now;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    if (diffDays < 0) {
-      return 'Vencida';
-    } else if (diffDays === 0) {
-      return 'Vence hoy';
-    } else if (diffDays === 1) {
-      return 'Vence mañana';
-    } else {
-      return `${diffDays} días restantes`;
-    }
-  };
-
-  const getDaysRemaining = (dateString) => {
-    if (!dateString) return null;
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = date - now;
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  };
 
   if (loading) {
     return (
@@ -362,13 +294,12 @@ const MissionList = ({ onMissionUpdate, onMissionDelete, onEditMission }) => {
               {/* Background gradient */}
               <div className={`absolute inset-0 z-0 bg-gradient-to-br ${typeColor} opacity-30 group-hover:opacity-50 transition-all duration-300 rounded-3xl`}></div>
               {/* Top bar status */}
-              <div className={`absolute top-0 left-0 w-full h-2 rounded-t-3xl ${
-                mission.status === 'completada'
-                  ? 'bg-gradient-to-r from-green-400 to-emerald-400'
-                  : mission.status === 'fallida'
+              <div className={`absolute top-0 left-0 w-full h-2 rounded-t-3xl ${mission.status === 'completada'
+                ? 'bg-gradient-to-r from-green-400 to-emerald-400'
+                : mission.status === 'fallida'
                   ? 'bg-gradient-to-r from-red-400 to-pink-400'
                   : 'bg-gradient-to-r from-yellow-400 to-orange-400'
-              }`}></div>
+                }`}></div>
               {/* Overdue pulse */}
               {isOverdue && (
                 <div className="absolute top-4 right-4">

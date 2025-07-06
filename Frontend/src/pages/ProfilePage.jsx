@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 const ProfilePage = () => {
-  const { user, setUser } = useContext(UserContext);
+  const { user, setUser, fetchUser } = useContext(UserContext);
   const [previewImage, setPreviewImage] = useState(null);
   const [userData, setUserData] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -51,6 +51,7 @@ const ProfilePage = () => {
   }, []);
 
   const handleSave = async () => {
+    
     if (!userData.firstname) {
       return Swal.fire({
         icon: 'warning',
@@ -94,6 +95,13 @@ const ProfilePage = () => {
 
       const updateUser = response.data.user;
       setUser(updateUser);
+       Swal.fire({
+        icon: 'success',
+        title: 'Perfil Actualizado',
+        text: 'Perfil actualizado exitosamente',
+        confirmButtonColor: '#6366f1',
+      });
+      await fetchUser();
       setIsEditing(false);
     } catch (error) {
       const errorMsg = error.response?.data?.msg || 'Algo salió mal';
