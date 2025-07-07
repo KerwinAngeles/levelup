@@ -19,7 +19,7 @@ if (!fs.existsSync(uploadsDir)) {
 
 const app = express();
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: 'https://levelup-production-96c2.up.railway.app',
   credentials: true
 }));
 app.use(express.json());
