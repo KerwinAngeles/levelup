@@ -21,11 +21,6 @@ export const showAlert = (xpNotification) => {
               <div class="text-center">
                 <div class="text-4xl mb-4">🎉</div>
                 <p class="mb-2">¡Felicidades! Has completado tu misión.</p>
-                ${xpNotification.hasNewRank ? `
-              <div class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-4 py-2 rounded-lg font-bold text-lg mb-2">
-                Rank-${xpNotification.rank} Desbloqueado
-              </div>
-            ` : ''}
                 <div class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-4 py-2 rounded-lg font-bold text-lg mb-2">
                   +${xpNotification.xp} XP
                 </div>
