@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react'
 import { useContext } from 'react';
 import { UserContext } from '../context/UserContext';
 import Swal from 'sweetalert2';
+const baseURL = import.meta.env.VITE_API_URL;
+
 
 import api from '../api';
 import {
@@ -161,7 +163,7 @@ const ProfilePage = () => {
                 <div className="w-48 h-48 rounded-full p-2 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 shadow-2xl">
                   <img
                     alt="Foto de perfil"
-                    src={previewImage || `http://localhost:5000/uploads/${userData.profileImage}`}
+                    src={previewImage || `${baseURL}/uploads/${userData.profileImage}`}
                     className="w-full h-full rounded-full object-cover border-4 border-white shadow-lg"
                   />
                 </div>
