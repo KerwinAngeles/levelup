@@ -19,7 +19,7 @@ if (!fs.existsSync(uploadsDir)) {
 
 const app = express();
 app.use(cors({
-  origin: 'https://levelup-orcin.vercel.app',
+  origin: 'https://levelup-ke.vercel.app/',
   credentials: true
 }));
 app.use(express.json());

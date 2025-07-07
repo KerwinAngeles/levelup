@@ -3,6 +3,7 @@ import { UserContext } from '../context/UserContext';
 import Nav from '../components/Nav'
 import { showAlert } from '../utils/showAlert';
 import {getStatTargetIcon, getStatTargetColor, getStatTargetLabel} from '../utils/const';
+const baseURL = import.meta.env.VITE_API_URL;
 import {
   Crown,
   Users,
@@ -143,7 +144,7 @@ const HomePage = () => {
                 <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center overflow-hidden">
                   {user && user.profileImage ? (
                     <img
-                      src={`http://localhost:5000/uploads/${user.profileImage}`}
+                      src={`${baseURL}/uploads/${user.profileImage}`}
                       alt="Foto de perfil"
                       className="w-full h-full object-cover"
                     />
