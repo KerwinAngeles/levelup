@@ -1,6 +1,6 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client'; // 👈 SIN llaves
-import { UserProvider } from './context/userContext'; // Importa el UserProvider
+import ReactDOM from 'react-dom/client'; 
+import { UserProvider } from './context/UserContext.jsx';
 import { BrowserRouter } from 'react-router-dom';
 import './index.css';
 import App from './App.jsx';
