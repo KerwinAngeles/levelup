@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
 import { UserContext } from '../context/UserContext';
 import { useContext } from "react";
+import { Link } from "react-router-dom";
 
 const Auth = ({ type = 'login' }) => {
     const navigate = useNavigate();
@@ -262,16 +263,16 @@ const Auth = ({ type = 'login' }) => {
                         {isRegister ? (
                             <div className="flex justify-center items-center gap-2">
                                 <p className>¿Ya tienes cuenta?</p>
-                                <a href="/" className="font-medium text-blue-600 hover:underline dark:text-white">
+                                <Link to="/" className="font-medium text-blue-600 hover:underline dark:text-white">
                                     Inicia sesión
-                                </a>
+                                </Link>
                             </div>
                         ) : (
                             <div className="flex justify-center items-center gap-2">
                                 <p>¿No tienes una cuenta?</p>
-                                <a href="/register" className="font-medium text-blue-600 hover:underline dark:text-white">
+                                <Link to="/register" className="font-medium text-blue-600 hover:underline dark:text-white">
                                     Regístrate
-                                </a>
+                                </Link>
                             </div>
                         )}
                     </div>
