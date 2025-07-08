@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
+import SweetAlert from 'sweetalert2';
 import {
   User,
   Target,
@@ -15,8 +16,19 @@ const Nav = () => {
   const {user} = useContext(UserContext);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/');
+   Swal.fire({
+    title: '¿Estás seguro?',
+    text: "Tu sesión se cerrará",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, salir',
+    cancelButtonText: 'Cancelar'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      localStorage.removeItem('token');
+      navigate('/');
+    }
+  });
   };
   const menuItems = [
     { icon: Target, label: 'HOME', route: '/home', active: false },
