@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 import SweetAlert from 'sweetalert2';
+import Swal from 'sweetalert2';
 import {
   User,
   Target,
